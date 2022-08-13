@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2018 Sean Nyekjaer
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <atmel/samd20.dtsi>
+#include "pesaje_samd20e16-pinctrl.dtsi"
+
+/ {
+	model = "Pesaje SAM D20 E16";
+	compatible = "atsamd20e16,pesaje", "atmel,samd20e16", "atmel,samd20";
+
+	aliases {
+		led1 = &red_led;
+		io1 = &io1;
+		io2 = &io2;
+		i2c-0 = &sercom0;
+		spi-0 = &sercom1;
+		usart-0 = &sercom3;
+	};
+
+	chosen {
+		zephyr,console = &sercom3;
+		zephyr,shell-uart = &sercom3;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		red_led: led_1 {
+			gpios = <&porta 02 GPIO_ACTIVE_LOW>;
+			label = "LED1";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		user_button: button_0 {
+			gpios = <&porta 14 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+			label = "IO1";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		user_button: button_1 {
+			gpios = <&porta 15 (GPIO_PULL_DOWN | GPIO_ACTIVE_HIGH)>;
+			label = "IO2";
+		};
+	};
+};
+
+&cpu0 {
+	clock-frequency = <48000000>;
+};
+
+&sercom1 {
+	status = "okay";
+	compatible = "atmel,sam0-spi";
+	dipo = <0>;
+	dopo = <1>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	cs-gpios = <&porta 17 GPIO_ACTIVE_LOW>;
+
+	pinctrl-0 = <&sercom1_spi_default>;
+	pinctrl-names = "default";
+};
+
+&sercom0 {
+	status = "okay";
+	compatible = "atmel,sam0-i2c";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	pinctrl-0 = <&sercom0_i2c_default>;
+	pinctrl-names = "default";
+};
+
+&sercom3 {
+	status = "okay";
+	compatible = "atmel,sam0-uart";
+	current-speed = <115200>;
+	rxpo = <3>;
+	txpo = <1>;
+
+	pinctrl-0 = <&sercom3_uart_default>;
+	pinctrl-names = "default";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+	};
+};
+
+&rtc {
+	status = "okay";
+};
